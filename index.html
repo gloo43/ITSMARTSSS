@@ -9,6 +9,13 @@
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
   <link rel="shortcut icon" href="../src/images/dropbox_logo.svg">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
+  <link rel="shortcut icon" href="../src/images/dropbox_logo.svg">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
     <style>
     * {box-sizing: border-box;}
@@ -236,7 +243,7 @@
             </div>
             <ul>
                 <li>
-                    <a href="#">
+                    <a href="#" class=" active">
                         <span class="icon"><i class="fas fa-home"></i></span>
                         <span class="item">Origen</span> <form action="/url" method="GET"><label>
                                 <input type="text" name="origen" minlength="3" maxlength="10" required>
@@ -397,6 +404,11 @@
   
 </div>
         
-  
+<script>
+  var hamburger = document.querySelector(".hamburger");
+hamburger.addEventListener("click", function(){
+document.querySelector("body").classList.toggle("active");
+})
+</script>
 </body>
 </html>
