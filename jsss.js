@@ -10,6 +10,8 @@
   var lines=[]
   var avoid="";
   var colors=["#32a852", "#3285a8", "#8f4ad4", "#d44a8a"]
+
+  
   var platform = new H.service.Platform({
     'apikey': 'IA6wsOsWVEGNVl1rjQ8REXSMmQCkW5sfBpkGL4I1kng'
   });
@@ -49,9 +51,47 @@
   })
   
   function addMarkersToMap(map,lat,lon) {
-    let mar= new H.map.Marker({lat:lat,lng:lon});
-    map.addObject(mar);
-    markers.push(mar)
+  var marker = new H.map.Marker({lat:lat, lng:lon}, {
+    volatility: true
+    });
+    marker.draggable = true;
+    map.addObject(marker);
+    markers.push(marker)
+    map.addEventListener('dragstart', function(ev) {
+      var target = ev.target,
+      pointer = ev.currentPointer;
+      if (target instanceof H.map.Marker) {
+        var targetPosition = map.geoToScreen(target.getGeometry());
+        target['offset'] = new H.math.Point(pointer.viewportX - targetPosition.x, pointer.viewportY - targetPosition.y);
+        behavior.disable();
+      }
+    }, false);
+
+    map.addEventListener('dragend', function(ev) {
+      var target = ev.target;
+      if (target instanceof H.map.Marker) {
+        behavior.enable();
+        var newPosition = target.getGeometry();
+        var latitude = newPosition.lat;
+        var longitude = newPosition.lng;
+        let place="";
+        if(markers.indexOf(target)==0){
+          place="first_place";
+        }
+        else if(markers.indexOf(target)==1){
+          place="second_place"
+        }
+        document.querySelector(`#${place}`).value=`${latitude},${longitude}`
+        }
+    }, false);
+    map.addEventListener('drag', function(ev) {
+      var target = ev.target,
+      pointer = ev.currentPointer;
+      if (target instanceof H.map.Marker) {
+        target.setGeometry(map.screenToGeo(pointer.viewportX - target['offset'].x, pointer.viewportY - target['offset'].y));
+      }
+      
+    }, false);
 }
   
 function moveMapToPlace(map,lat,lon,zoom=3){
@@ -79,6 +119,8 @@ function remove_parts(elements) {
 function directions(){
   let value1 = document.querySelector("#first_place").value;
   let value2 = document.querySelector("#second_place").value;
+  value1=value1.replace(/ /g,'');
+  value2=value2.replace(/ /g,'');
   let lat1 = parseFloat(value1.split(",")[0]);
   let lon1 = parseFloat(value1.split(",")[1]);
   let lat2 = parseFloat(value2.split(",")[0]);
@@ -108,7 +150,11 @@ function directions(){
   addMarkersToMap(map,lat1,lon1);
   addMarkersToMap(map,lat2,lon2);
   fetch(`https://router.hereapi.com/v8/routes?apikey=IA6wsOsWVEGNVl1rjQ8REXSMmQCkW5sfBpkGL4I1kng&lang=es&origin=${value1}&destination=${value2}&return=polyline%2Csummary%2Cactions%2Cinstructions%2Ctolls&transportMode=${transportation}${departure_time_content}${avoid}&alternatives=3`)
-  .then(response => response.json())
+  .then(response => {
+    if (response.status==400) {
+      alert("No se puede hacer lo solicitado por los datos")
+    }
+    response.json()
   .then(info => {
       var content="";
       document.querySelector("#find_routes").innerText=info["routes"].length;
@@ -149,5 +195,7 @@ function directions(){
     }
       document.querySelector("#instructions").innerHTML=content;
   });
+  })
+  
 }
 
