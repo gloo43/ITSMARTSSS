@@ -375,10 +375,3 @@ padding:3px;
 min-height:5px; 
 min-width: 20px;
 }    
-#instructions{
-  float:right; 
-  width: calc(90vw - 200px);
-}
-.sidebar{
-  
-}

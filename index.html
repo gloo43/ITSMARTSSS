@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
     <link href= "styles.css" rel="stylesheet" type="text/css">
+    <link href= "json.css" rel="stylesheet" type="text/css">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
@@ -23,23 +24,63 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 </head>
 <body id="markers-on-the-map">  
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <div class="wrapper">
-       <div class="section">
-    <div class="top_navbar">
-      <div class="hamburger">
-        <a>
-          <i class="fas fa-bars"></i>
-        </a>
-      </div>
-    </div>
    
-    <div class="container">
-        <div class="page-header">
+
+<a href="javascript:void(0);" class="menu_icon"><img src="iconn.png" alt="Image" width="20px" height="18px" > </a>
+<div id="menu" style="overflow: auto;">
+  <ul>
+    <li><a>Rutas encontradas:<span id="find_routes"></span></a></li>
+    <button class="carousel-control circle-button-div" onclick="move_page('prev')" type="button" >
+        <div class="circle-button">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </div>
+      </button>
+      <button class="carousel-control circle-button-div" onclick="move_page('next')" type="button" data-slide="next">
+        <div class="circle-button">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
         </div>
-        <div id="map"></div>   
+      </button>
+    <li id="instructions"></li>
+
+  </ul>
+</div>
+<script
+  src="https://code.jquery.com/jquery-3.6.4.js"
+  integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+  crossorigin="anonymous"></script>"></scipt>
+  <script>
+  </script>
+  <script type="text/javascript" src='demo.js'></script>      
+  <div class="wrapper">
+     <div class="section">
+      <div class="top_navbar">
+    <div class="hamburger" style="color: #a2ecff;">
+      <a href="#">
+        <i class="fas fa-bars"></i>
+      </a>
     </div>
+      <span><input type="search" onchange="search_city()"  id="query" name="q" placeholder="Buscar...">
+        <select onchange="" id="datalist_results">
+        <option value="Ninguno">Selecciona</option>
+        </select>
+        <select  id="datalist_place">
+        <option value="Ninguno">Destinación</option>
+        <option value="first_place">Lugar de partida</option>
+        <option value="second_place">Lugar de llegada</option>
+        </select>
+            <button type="button" onclick="onchange_search()">Ya!</button>
   </div>
+
+  <div class="container">
+  <div class="vh-50">  
+  <div class="vw-50">
+      <div class="page-header">
+      </div>
+      <div id="map"></div>   
+  </div>
+  </div>
+  </div>
+</div>
         <div class="sidebar" style="overflow: auto;">
             <div class="profile">
                 <img src="logo.jpg">
@@ -51,14 +92,14 @@
                     <a>
                       <span class="icon"><i class="fas fa-home"></i></span>
                       <span class="item">Origen</span> <label>
-                        <input type="text" name="origen" minlength="3" id="first_place" value="21.118448,-101.687337" required>
+                        <input type="text" name="origen" minlength="3" id="first_place" class="input_search" value="21.118448,-101.687337" required>
                     </a>
                 </li>
                 <li>
                     <a>
                         <span class="icon"><i class="fas fa-desktop"></i></span>
                         <span class="item">Destino</span>
-                          <input type="text" name="destino" minlength="3" id="second_place" value="19.432512,-99.067704"  required>
+                          <input type="text" name="destino" minlength="3" id="second_place" class="input_search" value="23.206749477566127,-109.9723418621682"  required>
                           <br>
                           <button type="button6" class="button6"onclick="directions()">Enviar y generar ruta</button>   
                     </a>
@@ -70,6 +111,7 @@
                         <br>
                         <input type="radio" class="transportation" checked value="car" name="transportation" id=""><i class="fas fa-car" style="font-size:20px"></i>
                         <input type="radio" class="transportation" value="truck" name="transportation" id=""><i class="fas fa-truck" style="font-size:20px"></i>
+                        <input type="radio" class="transportation" value="pedestrian" name="transportation" id=""><i class="fas fa-walking" style="font-size:20px"></i>
                         <input type="radio" class="transportation" value="bicycle" name="transportation" id=""><i class="fas fa-bicycle" style="font-size:20px"></i>
                     </a>
             
@@ -148,10 +190,5 @@
   </div>
   
 </div>
-Rutas encontradas: <span id="find_routes"></span>
-        <div id="instructions">
-            
-        </div>
-        
 </body>
 </html>
