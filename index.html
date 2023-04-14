@@ -92,14 +92,23 @@
                     <a>
                       <span class="icon"><i class="fas fa-home"></i></span>
                       <span class="item">Origen</span> <label>
-                        <input type="text" name="origen" minlength="3" id="first_place" class="input_search" value="21.118448,-101.687337" required>
+                        <input type="text" name="origen" minlength="3" id="first_place" class="input_search destinations" value="21.118448,-101.687337" required>
+                    </a>
+                </li>
+                <li>
+                    <a>
+                        <span class="icon"><i class="fas fa-desktop"></i></span>
+                        <span class="item">Paradas adicionales</span><button onclick="add_stop()">+</button>
+                        <div id="additional">
+                        </div>
+                        <br>  
                     </a>
                 </li>
                 <li>
                     <a>
                         <span class="icon"><i class="fas fa-desktop"></i></span>
                         <span class="item">Destino</span>
-                          <input type="text" name="destino" minlength="3" id="second_place" class="input_search" value="23.206749477566127,-109.9723418621682"  required>
+                          <input type="text" name="destino" minlength="3" id="second_place" class="input_search destinations" value="23.206749477566127,-109.9723418621682"  required>
                           <br>
                           <button type="button6" class="button6"onclick="directions()">Enviar y generar ruta</button>   
                     </a>
@@ -127,51 +136,60 @@
                 </li>
                 <li>
                     <a>
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+                        <h4>Forma de viaje:</h4>
+                        <input type="radio" checked class="mode" value="none" name="mode" id=""><span>Ninguno</span>
+                        <input type="radio" class="mode" value="fastest" name="mode" id=""><span>Rapida</span>
+                        <input type="radio" class="mode" value="shortest" name="mode" id=""><span>Corta</span>
+                    </a>
+                </li>
+                <li>
+                    <a>
                         <span class="icon"><i class="fas fa-exclamation"></i></span>
                         <span class="item">Evitar</span>
                         <div>
                             <input type="checkbox" class="avoid" value="seasonalClosure" name="avoid" id="">
-                                <p>Clausura estacional</p>
+                                <span>Clausura estacional</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" class="avoid" value="controlledAccessHighway" name="avoid" id="">
-                                <p>Autopista de acceso controlado</p>
+                                <span>Autopista de acceso controlado</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" class="avoid" value="carShuttleTrain" name="avoid" id="">
-                                <p>Cruce con tren</p>
+                                <span>Cruce con tren</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" class="avoid" value="dirtRoad" name="avoid" id="">
-                                <p>Camino de tierra</p>
+                                <span>Camino de tierra</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" class="avoid" value="uTurns" name="avoid" id="">
-                                <p>Vuelta en U</p>
+                                <span>Vuelta en U</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" class="avoid" value="difficultTurns" name="avoid" id="">
-                                <p>Carretera de cobro</p>
+                                <span>Carretera de cobro</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" name="avoid" value="ferry"  class="avoid" id="">
-                                <p>Ferry</p>
+                                <span>Ferry</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" name="avoid" value="tunnel" class="avoid" id="">
-                                <p>Túnel</p>
+                                <span>Túnel</span>
                             </input>
                         </div>
                         <div>
                             <input type="checkbox" name="avoid" value="tollRoad" class="avoid" id="">
-                                <p>Giros complicados</p>
+                                <span>Giros complicados</span>
                             </input>
                         </div>
                     </a>

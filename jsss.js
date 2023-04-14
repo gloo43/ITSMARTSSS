@@ -6,8 +6,8 @@
   var transportation="car";
   var departure_time_content="";
   var type_time="";
-  var markers=[]
-  var lines=[]
+  var markers=[];
+  var lines=[];
   var avoid="";
   var index_page=0;
   var colors=["#32a852", "#3285a8", "#8f4ad4", "#d44a8a"]
@@ -24,6 +24,13 @@
     pixelRatio: window.devicePixelRatio || 1
   });
   window.addEventListener('resize',() => map.getViewPort().resize());
+  window.onload = function() {
+    map.addEventListener('contextmenu', function(ev) {
+      var pos = map.screenToGeo(ev.viewportX, ev.viewportY);
+      let marker=addMarkersToMap(map, pos.lat, pos.lng);
+      search_from_marker(marker, pos.lat, pos.lng)
+    }, false);
+  }
   var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
   var ui = H.ui.UI.createDefault(map,defaultLayers);
   
@@ -47,12 +54,12 @@
   });
 
   function addMarkersToMap(map,lat,lon) {
-  var marker = new H.map.Marker({lat:lat, lng:lon}, {
+    var marker = new H.map.Marker({lat:lat, lng:lon}, {
     volatility: true
     });
     marker.draggable = true;
     map.addObject(marker);
-    markers.push(marker)
+    markers.push(marker);
     map.addEventListener('dragstart', function(ev) {
       var target = ev.target,
       pointer = ev.currentPointer;
@@ -70,7 +77,7 @@
         var newPosition = target.getGeometry();
         var latitude = newPosition.lat;
         var longitude = newPosition.lng;
-        search_from_marker(target, latitude, longitude);
+        document.querySelectorAll(`.input_search`)[markers.indexOf(target)].value=`${latitude},${longitude}`
         }
     }, false);
     map.addEventListener('drag', function(ev) {
@@ -85,11 +92,18 @@
 }
   
 function search_from_marker(marker, latitude, longitude){
-  document.querySelectorAll(`.input_search`)[markers.indexOf(marker)].value=`${latitude},${longitude}`
+  if(markers.length>=3){
+    let stop=add_stop()
+    let final_destination=document.querySelector(`#second_place`);
+    stop.value=final_destination.value;
+    final_destination.value=`${latitude},${longitude}`
+  }
+  else{
+    document.querySelectorAll(`.input_search`)[markers.indexOf(marker)].value=`${latitude},${longitude}`
+  }
 }
-function moveMapToPlace(map,lat,lon,zoom=3){
+function moveMapToPlace(map,lat,lon){
   map.setCenter({lat: lat,lng: lon});
-  map.setZoom(zoom);
 }  
 function addPolylineToMap(map, poly, color) {
   var lineString = new H.geo.LineString();
@@ -121,6 +135,7 @@ function directions(){
   transportation=document.querySelector('input[name="transportation"]:checked').value;
   departure_time=document.querySelector("#departure-time").value;
   type_time=document.querySelector('input[name="time_type"]:checked').value;
+  let mode=document.querySelector('input[name="mode"]:checked').value;
   avoid=document.querySelectorAll('input[name="avoid"]:checked');
   let tolls_able="%2Ctolls";
   if (transportation=="bicycle"||transportation=="pedestrian") {
@@ -140,13 +155,28 @@ function directions(){
   else{
     avoid="";
   }
+  if(mode!="none"){
+    mode=`&mode=${mode}`
+  }
+  else{
+    mode="";
+  }
   remove_parts([markers, lines]);
   markers=[];
   lines=[];
-  moveMapToPlace(map,lat1,lon1,18);
+  let additional_inputs=document.querySelectorAll(".additional_input");
+  var vias="";
+  if (additional_inputs.length>=1) {
+    additional_inputs.forEach(element=>{
+      vias+=`&via=${element.value}`;
+      addMarkersToMap(map,element.value.split(",")[0],element.value.split(",")[1]);
+    })
+  }
+  
+  moveMapToPlace(map,lat1,lon1);
   addMarkersToMap(map,lat1,lon1);
   addMarkersToMap(map,lat2,lon2);
-  fetch(`https://router.hereapi.com/v8/routes?apikey=IA6wsOsWVEGNVl1rjQ8REXSMmQCkW5sfBpkGL4I1kng&lang=es&origin=${value1}&destination=${value2}&return=polyline%2Csummary%2Cactions%2Cinstructions${tolls_able}&transportMode=${transportation}${departure_time_content}${avoid}&alternatives=3`)
+  fetch(`https://router.hereapi.com/v8/routes?apikey=IA6wsOsWVEGNVl1rjQ8REXSMmQCkW5sfBpkGL4I1kng&lang=es&origin=${value1}&destination=${value2}${mode}&return=polyline%2Csummary%2Cactions%2Cinstructions${tolls_able}&transportMode=${transportation}${departure_time_content}${avoid}${vias}&alternatives=3`)
   .then(response => {
     if (response.status==400) {
       alert("No se puede hacer lo solicitado por los datos")
@@ -161,7 +191,6 @@ function directions(){
       let dt_another=luxon.DateTime.fromISO(`${data["arrival"]["time"]}`)
       dt=dt.setLocale('es').toLocaleString(luxon.DateTime.DATETIME_FULL);
       dt_another=dt_another.setLocale('es').toLocaleString(luxon.DateTime.DATETIME_FULL);
-  
       let tolls="";
       try{
         data["tolls"].forEach(element => {
@@ -172,9 +201,14 @@ function directions(){
       }
       catch{tolls="No hay casetas"}
       let instructions="";
-      data["actions"].forEach(element=>{
-        instructions+=`<li>${element["instruction"]}</li>`
-      })
+      info["routes"][index]["sections"].forEach(section=>{
+        var polyline = section.polyline;
+        let y=decode(polyline);
+        addPolylineToMap(map, y, colors[index]);
+        section["actions"].forEach(element=>{
+          instructions+=`<li>${element["instruction"]}</li>`
+        })
+        })
       let display="none";
       if (index==0) {
         display="block";
@@ -191,24 +225,17 @@ function directions(){
       <h5>Instrucciones:</h5>
       <ol class="action">${instructions}</ol>
       </div>`
-      const polyline = data.polyline;
-      let y=decode(polyline);
-      addPolylineToMap(map, y, colors[index]);
+      
     }
       document.querySelector("#instructions").innerHTML=content;
   });
   })
 }
-map.addEventListener('contextmenu', function(ev) {
-  var pos = map.screenToGeo(ev.viewportX, ev.viewportY);
-  remove_parts([markers.pop()])
-  let marker=addMarkersToMap(map, pos.lat, pos.lng);
-  search_from_marker(marker, pos.lat, pos.lng)
-}, false);
-  var transportation_button = document.querySelector(".button_transportation");
-  transportation_button.addEventListener("click",function(){
-      document.querySelector("body").classList.toggle("active");
-  })
+
+var transportation_button = document.querySelector(".button_transportation");
+    transportation_button.addEventListener("click",function(){
+        document.querySelector("body").classList.toggle("active");
+    })
 
   function move_page(direction) {
     try{
@@ -247,4 +274,21 @@ function onchange_search() {
   let place=document.querySelector("#datalist_place").value;
   let value=document.querySelector("#datalist_results").value;
   document.querySelector(`#${place}`).value=value;
+}
+function add_stop(){
+  let div=document.querySelector("#additional");
+  let span=document.createElement("span")
+  let input=document.createElement("input")
+  input.classList.add("input_search")
+  input.classList.add("additional_input")
+  let button=document.createElement("button");
+  button.innerText="X";
+  button.addEventListener("click",()=> remove_element(button))
+  span.append(input)
+  span.append(button)
+  div.append(span)
+  return input;
+}
+function remove_element(button){
+  button.parentElement.remove()
 }
